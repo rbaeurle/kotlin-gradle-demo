@@ -13,6 +13,10 @@ fun main(args: Array<String>) {
     for ( d in  MyDate(2019,3,19)..MyDate(2019,3,22)) {
         println(d)
     }
+    println(task1(MyDate(1967,10,26)))
+    println(task2(MyDate(1967,10,26)))
+    println(isLeapDay(MyDate(2000,2,29)))
+    println(invokeTwice(Invokable()))
 }
 
 //
@@ -70,3 +74,46 @@ class DateIterator(val dateRange:DateRange) : Iterator<MyDate> {
     }
     override fun hasNext(): Boolean = current <= dateRange.endInclusive
 }
+
+//
+// operator overloading
+//
+operator fun MyDate.plus(timeInterval: TimeInterval): MyDate = addTimeIntervals(timeInterval,1)
+
+fun task1(today: MyDate): MyDate {
+    return today + TimeInterval.YEAR + TimeInterval.WEEK
+}
+
+class RepeatedTimeInterval(val timeInterval: TimeInterval, val number: Int)
+
+operator fun TimeInterval.times(number: Int) = RepeatedTimeInterval(this, number)
+
+operator fun MyDate.plus(timeIntervals: RepeatedTimeInterval) = addTimeIntervals(timeIntervals.timeInterval, timeIntervals.number)
+
+fun task2(today: MyDate): MyDate {
+    return today + TimeInterval.YEAR * 2 + TimeInterval.WEEK * 3 + TimeInterval.DAY * 5
+}
+
+//
+// destructuring declarations
+//
+fun isLeapDay(date: MyDate): Boolean {
+    val (year, month, dayOfMonth) = date
+    // 29 February of a leap year
+    return year % 4 == 0 && month == 2 && dayOfMonth == 29
+}
+
+//
+// Invoke
+//
+class Invokable {
+    private var numberOfInvocations: Int = 0
+    operator fun invoke(): Invokable {
+        numberOfInvocations++
+        return this
+    }
+
+    override fun toString() = numberOfInvocations.toString()
+}
+
+fun invokeTwice(invokable: Invokable) = invokable()()()()()
